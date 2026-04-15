@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Air Jordan 1 Low – University Blue Ranking Poll</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      background: #f0f4ff;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 40px 16px 60px;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 36px;
+    }
+
+    header h1 {
+      font-size: 1.75rem;
+      font-weight: 800;
+      color: #1a1a2e;
+      letter-spacing: -0.5px;
+    }
+
+    header p {
+      margin-top: 8px;
+      color: #5a6789;
+      font-size: 0.95rem;
+    }
+
+    /* ── Ranking list ── */
+    #ranking-list {
+      width: 100%;
+      max-width: 560px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .shoe-card {
+      background: #fff;
+      border: 2px solid #dde3f5;
+      border-radius: 16px;
+      padding: 18px 20px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      cursor: grab;
+      transition: box-shadow 0.15s, border-color 0.15s, transform 0.15s;
+      user-select: none;
+      position: relative;
+    }
+
+    .shoe-card:active { cursor: grabbing; }
+
+    .shoe-card.dragging {
+      opacity: 0.45;
+      border-color: #5b8dee;
+      transform: scale(1.02);
+      box-shadow: 0 8px 28px rgba(91,141,238,.25);
+    }
+
+    .shoe-card.drag-over {
+      border-color: #5b8dee;
+      background: #eef2ff;
+    }
+
+    /* rank badge */
+    .rank-badge {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: #5b8dee;
+      color: #fff;
+      font-size: 1rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      transition: background 0.2s;
+    }
+
+    .rank-badge.rank-1 { background: #f5c518; color: #1a1a2e; }
+    .rank-badge.rank-2 { background: #a8a9ad; }
+    .rank-badge.rank-3 { background: #cd7f32; }
+
+    /* colour swatch */
+    .swatch {
+      width: 52px;
+      height: 52px;
+      border-radius: 12px;
+      flex-shrink: 0;
+      border: 2px solid #e2e8f5;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+    }
+
+    .swatch.ice       { background: linear-gradient(135deg, #ddeeff 0%, #ffffff 55%, #cce0ff 100%); }
+    .swatch.unc       { background: linear-gradient(135deg, #57a5e0 0%, #ffffff 55%, #3a8ecb 100%); }
+    .swatch.patent    { background: linear-gradient(135deg, #60aadf 0%, #d0e8ff 40%, #2d82c4 100%); }
+    .swatch.gs        { background: linear-gradient(135deg, #79bce8 0%, #ffffff 55%, #5aaae0 100%); }
+
+    /* text */
+    .card-text { flex: 1; }
+    .card-title { font-size: 1rem; font-weight: 700; color: #1a1a2e; }
+    .card-desc  { font-size: 0.8rem; color: #6b7a9e; margin-top: 3px; line-height: 1.4; }
+
+    /* drag handle */
+    .handle {
+      color: #b0bbda;
+      font-size: 1.2rem;
+      flex-shrink: 0;
+      cursor: grab;
+    }
+
+    /* ── Vote button ── */
+    #vote-btn {
+      margin-top: 28px;
+      padding: 14px 44px;
+      background: #5b8dee;
+      color: #fff;
+      border: none;
+      border-radius: 50px;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background 0.15s, transform 0.1s;
+      letter-spacing: 0.3px;
+    }
+
+    #vote-btn:hover  { background: #3a6fd8; }
+    #vote-btn:active { transform: scale(0.97); }
+
+    /* ── Results ── */
+    #results {
+      display: none;
+      width: 100%;
+      max-width: 560px;
+      margin-top: 32px;
+      background: #fff;
+      border: 2px solid #dde3f5;
+      border-radius: 20px;
+      padding: 28px 24px;
+    }
+
+    #results h2 {
+      font-size: 1.1rem;
+      font-weight: 800;
+      color: #1a1a2e;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+
+    .result-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    .result-row:last-child { margin-bottom: 0; }
+
+    .result-label {
+      width: 170px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: #1a1a2e;
+      flex-shrink: 0;
+    }
+
+    .bar-track {
+      flex: 1;
+      height: 22px;
+      background: #eef2ff;
+      border-radius: 6px;
+      overflow: hidden;
+    }
+
+    .bar-fill {
+      height: 100%;
+      background: #5b8dee;
+      border-radius: 6px;
+      transition: width 0.6s ease;
+      width: 0%;
+    }
+
+    .result-pct {
+      width: 42px;
+      text-align: right;
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: #5b8dee;
+    }
+
+    #results-note {
+      text-align: center;
+      font-size: 0.78rem;
+      color: #8a96b5;
+      margin-top: 18px;
+    }
+
+    #vote-again-btn {
+      display: block;
+      margin: 20px auto 0;
+      background: none;
+      border: 2px solid #5b8dee;
+      color: #5b8dee;
+      border-radius: 50px;
+      padding: 10px 32px;
+      font-size: 0.9rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background 0.15s, color 0.15s;
+    }
+
+    #vote-again-btn:hover {
+      background: #5b8dee;
+      color: #fff;
+    }
+
+    /* ── Instructions ── */
+    .instructions {
+      font-size: 0.8rem;
+      color: #8a96b5;
+      text-align: center;
+      margin-bottom: 10px;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>Air Jordan 1 Low – University Blue</h1>
+  <p>Rank these 4 colourways from your <strong>favourite (1)</strong> to least favourite <strong>(4)</strong></p>
+</header>
+
+<p class="instructions">Drag cards to reorder &nbsp;·&nbsp; #1 = best</p>
+
+<ul id="ranking-list" aria-label="Sneaker ranking list">
+
+  <li class="shoe-card" draggable="true" data-id="ice">
+    <span class="rank-badge rank-1">1</span>
+    <div class="swatch ice"></div>
+    <div class="card-text">
+      <div class="card-title">Ice Blue / White</div>
+      <div class="card-desc">Ultra-pale baby-blue upper, white midsole &amp; white laces — soft &amp; understated</div>
+    </div>
+    <span class="handle">⠿</span>
+  </li>
+
+  <li class="shoe-card" draggable="true" data-id="unc-standard">
+    <span class="rank-badge rank-2">2</span>
+    <div class="swatch unc"></div>
+    <div class="card-text">
+      <div class="card-title">University Blue (Standard)</div>
+      <div class="card-desc">Classic UNC blue leather upper, white midsole &amp; blue laces — the OG look</div>
+    </div>
+    <span class="handle">⠿</span>
+  </li>
+
+  <li class="shoe-card" draggable="true" data-id="patent">
+    <span class="rank-badge">3</span>
+    <div class="swatch patent"></div>
+    <div class="card-text">
+      <div class="card-title">University Blue (Patent)</div>
+      <div class="card-desc">High-gloss patent leather in UNC blue — bold, shiny finish with white base</div>
+    </div>
+    <span class="handle">⠿</span>
+  </li>
+
+  <li class="shoe-card" draggable="true" data-id="unc-gs">
+    <span class="rank-badge">4</span>
+    <div class="swatch gs"></div>
+    <div class="card-text">
+      <div class="card-title">University Blue GS</div>
+      <div class="card-desc">Grade-school silhouette, richer blue tone — slightly chunkier, vibrant pop</div>
+    </div>
+    <span class="handle">⠿</span>
+  </li>
+
+</ul>
+
+<button id="vote-btn">Submit My Ranking</button>
+
+<!-- Results panel -->
+<div id="results">
+  <h2>Community Rankings</h2>
+  <div id="results-body"></div>
+  <p id="results-note"></p>
+  <button id="vote-again-btn">Change My Ranking</button>
+</div>
+
+<script>
+  /* ─── Drag-and-drop reordering ─── */
+  const list = document.getElementById('ranking-list');
+  let dragged = null;
+
+  list.addEventListener('dragstart', e => {
+    dragged = e.target.closest('.shoe-card');
+    dragged.classList.add('dragging');
+  });
+
+  list.addEventListener('dragend', e => {
+    if (dragged) dragged.classList.remove('dragging');
+    document.querySelectorAll('.shoe-card').forEach(c => c.classList.remove('drag-over'));
+    dragged = null;
+    updateBadges();
+  });
+
+  list.addEventListener('dragover', e => {
+    e.preventDefault();
+    const target = e.target.closest('.shoe-card');
+    if (!target || target === dragged) return;
+
+    document.querySelectorAll('.shoe-card').forEach(c => c.classList.remove('drag-over'));
+    target.classList.add('drag-over');
+
+    const rect = target.getBoundingClientRect();
+    const midY = rect.top + rect.height / 2;
+    if (e.clientY < midY) {
+      list.insertBefore(dragged, target);
+    } else {
+      list.insertBefore(dragged, target.nextSibling);
+    }
+  });
+
+  list.addEventListener('dragleave', e => {
+    const target = e.target.closest('.shoe-card');
+    if (target) target.classList.remove('drag-over');
+  });
+
+  list.addEventListener('drop', e => e.preventDefault());
+
+  function updateBadges() {
+    const cards = list.querySelectorAll('.shoe-card');
+    cards.forEach((card, i) => {
+      const badge = card.querySelector('.rank-badge');
+      badge.textContent = i + 1;
+      badge.className = 'rank-badge' + (i < 3 ? ` rank-${i + 1}` : '');
+    });
+  }
+
+  /* ─── Simulated community results (localStorage-persisted) ─── */
+  const STORAGE_KEY = 'aj1low_poll_results';
+
+  function loadResults() {
+    try {
+      return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {
+        ice:          { name: 'Ice Blue / White',            points: 112 },
+        'unc-standard': { name: 'University Blue (Standard)', points: 198 },
+        patent:       { name: 'University Blue (Patent)',     points: 87  },
+        'unc-gs':     { name: 'University Blue GS',           points: 143 }
+      };
+    } catch { return {}; }
+  }
+
+  function saveResults(data) {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  }
+
+  /* Ranking → points: rank 1 = 4pts, rank 2 = 3pts, rank 3 = 2pts, rank 4 = 1pt */
+  function pointsForRank(rank) { return 5 - rank; }
+
+  function renderResults(data) {
+    const resultsDiv = document.getElementById('results');
+    const body = document.getElementById('results-body');
+    const note = document.getElementById('results-note');
+    body.innerHTML = '';
+
+    const total = Object.values(data).reduce((s, v) => s + v.points, 0);
+    const sorted = Object.entries(data).sort((a, b) => b[1].points - a[1].points);
+
+    sorted.forEach(([, v]) => {
+      const pct = total > 0 ? Math.round((v.points / total) * 100) : 0;
+      const row = document.createElement('div');
+      row.className = 'result-row';
+      row.innerHTML = `
+        <div class="result-label">${v.name}</div>
+        <div class="bar-track"><div class="bar-fill" style="width:0%"></div></div>
+        <div class="result-pct">${pct}%</div>`;
+      body.appendChild(row);
+      // animate after paint
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          row.querySelector('.bar-fill').style.width = pct + '%';
+        });
+      });
+    });
+
+    const votes = Math.round(total / 2.5);
+    note.textContent = `Based on ${votes} community votes`;
+    resultsDiv.style.display = 'block';
+    resultsDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  /* ─── Vote submission ─── */
+  document.getElementById('vote-btn').addEventListener('click', () => {
+    const cards = list.querySelectorAll('.shoe-card');
+    const data = loadResults();
+
+    cards.forEach((card, i) => {
+      const id = card.dataset.id;
+      if (data[id]) data[id].points += pointsForRank(i + 1);
+    });
+
+    saveResults(data);
+    document.getElementById('vote-btn').style.display = 'none';
+    list.querySelectorAll('.shoe-card').forEach(c => { c.draggable = false; c.style.cursor = 'default'; });
+    renderResults(data);
+  });
+
+  /* ─── Vote again ─── */
+  document.getElementById('vote-again-btn').addEventListener('click', () => {
+    document.getElementById('results').style.display = 'none';
+    document.getElementById('vote-btn').style.display = 'inline-block';
+    list.querySelectorAll('.shoe-card').forEach(c => { c.draggable = true; c.style.cursor = 'grab'; });
+  });
+</script>
+</body>
+</html>
